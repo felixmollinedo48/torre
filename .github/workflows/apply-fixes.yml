@@ -1,0 +1,61 @@
+name: 🔧 Apply AI Optimizations
+on:
+  workflow_dispatch:  # Permite ejecución MANUAL desde GitHub UI
+  push:
+    branches: [ main ]
+    paths:
+      - 'td_script.js'  # Solo se activa si cambia este archivo
+
+jobs:
+  apply-optimizations:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # ⚠️ NECESARIO para hacer push
+    
+    steps:
+      # 1. Descargar el código
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      # 2. Configurar Git
+      - name: ⚙️ Configure Git
+        run: |
+          git config user.name "GitHub AI Assistant"
+          git config user.email "ai-assistant@github.com"
+          git config pull.rebase false
+      
+      # 3. PRUEBA SEGURA: Solo añade un comentario
+      - name: 🔧 Apply AI Optimizations (PRUEBA)
+        run: |
+          echo "🧪 PRUEBA INICIAL - No modifica lógica"
+          
+          # Añadir comentario al inicio (INOFENSIVO)
+          if grep -q "🚀 OPTIMIZADO via GitHub Actions" td_script.js; then
+            echo "✅ Ya tiene el comentario, omitiendo..."
+          else
+            sed -i '1s|^|// 🚀 OPTIMIZADO via GitHub Actions - Inicializado\n|' td_script.js
+            echo "📝 Comentario añadido"
+          fi
+          
+          # Contar líneas (solo para ver)
+          echo "📊 Líneas actuales: $(wc -l < td_script.js)"
+      
+      # 4. Mostrar cambios (sin commit aún)
+      - name: 📋 Preview Changes
+        run: |
+          echo "🔍 Vista previa de cambios:"
+          git diff td_script.js || echo "No hay cambios aún"
+          
+      # 5. OPCIONAL: Confirmación manual (comenta/descomenta)
+       - name: 🚀 Commit & Push Changes
+         if: success()
+         run: |
+           if git diff --quiet td_script.js; then
+             echo "⚠️ No hay cambios"
+             exit 0
+           fi
+           git add td_script.js
+           git commit -m "🤖 PRUEBA: Configuración inicial"
+           git push origin main
