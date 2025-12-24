@@ -1,61 +1,35 @@
-name: 🔧 Apply AI Optimizations
+name: Apply AI Optimizations
 on:
-  workflow_dispatch:  # Permite ejecución MANUAL desde GitHub UI
+  workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - 'td_script.js'  # Solo se activa si cambia este archivo
+      - 'td_script.js'
 
 jobs:
   apply-optimizations:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # ⚠️ NECESARIO para hacer push
+      contents: write
     
     steps:
-      # 1. Descargar el código
-      - name: ⬇️ Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
       
-      # 2. Configurar Git
-      - name: ⚙️ Configure Git
+      - name: Configure Git
         run: |
           git config user.name "GitHub AI Assistant"
-          git config user.email "ai-assistant@github.com"
-          git config pull.rebase false
+          git config user.email "actions@github.com"
       
-      # 3. PRUEBA SEGURA: Solo añade un comentario
-      - name: 🔧 Apply AI Optimizations (PRUEBA)
+      - name: Simple Test
         run: |
-          echo "🧪 PRUEBA INICIAL - No modifica lógica"
-          
-          # Añadir comentario al inicio (INOFENSIVO)
-          if grep -q "🚀 OPTIMIZADO via GitHub Actions" td_script.js; then
-            echo "✅ Ya tiene el comentario, omitiendo..."
-          else
-            sed -i '1s|^|// 🚀 OPTIMIZADO via GitHub Actions - Inicializado\n|' td_script.js
-            echo "📝 Comentario añadido"
-          fi
-          
-          # Contar líneas (solo para ver)
-          echo "📊 Líneas actuales: $(wc -l < td_script.js)"
+          echo "🎯 PRUEBA: Modificando td_script.js"
+          # Añadir timestamp al inicio (cambio seguro)
+          sed -i '1s/^/\/\/ 🚀 Optimizado via GitHub Actions - $(date)\n/' td_script.js
+          echo "✅ Cambio aplicado"
       
-      # 4. Mostrar cambios (sin commit aún)
-      - name: 📋 Preview Changes
+      - name: Commit Changes
         run: |
-          echo "🔍 Vista previa de cambios:"
-          git diff td_script.js || echo "No hay cambios aún"
-          
-      # 5. OPCIONAL: Confirmación manual (comenta/descomenta)
-       - name: 🚀 Commit & Push Changes
-         if: success()
-         run: |
-           if git diff --quiet td_script.js; then
-             echo "⚠️ No hay cambios"
-             exit 0
-           fi
-           git add td_script.js
-           git commit -m "🤖 PRUEBA: Configuración inicial"
-           git push origin main
+          git add td_script.js
+          git commit -m "🤖 AI Test: Timestamp added" || echo "No changes"
+          git push origin main
